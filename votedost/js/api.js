@@ -1,9 +1,20 @@
 const api = {
     getApiKey() {
         let key = sessionStorage.getItem('GEMINI_API_KEY');
+        if (key === 'DISABLED') return null;
+        
         if (!key) {
-            key = prompt("Please enter your Gemini API Key for dynamic responses (stored only in session):");
-            if (key) sessionStorage.setItem('GEMINI_API_KEY', key);
+            key = prompt("Enter Gemini API Key for AI responses (Stored only for this session).\n\nClick 'Cancel' to disable AI and use standard text instead.");
+            if (key === null) {
+                sessionStorage.setItem('GEMINI_API_KEY', 'DISABLED');
+                return null;
+            }
+            key = key.trim();
+            if (key) {
+                sessionStorage.setItem('GEMINI_API_KEY', key);
+            } else {
+                return null;
+            }
         }
         return key;
     },
