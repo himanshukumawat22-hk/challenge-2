@@ -52,6 +52,25 @@ Here is how we achieved maximum impact with zero bloat:
 
 ---
 
+## 🧪 Lightweight Test Coverage
+
+To ensure stability without violating the `<10MB` constraint with heavy testing frameworks (like Jest or Cypress), we implemented a custom, zero-dependency validation script (`tests.js`) that automatically runs in the console upon loading.
+
+### Documented Test Scenarios
+
+1.  **Story Graph Integrity**
+    *   *Validation*: Loops through the entire `storyGraph` object.
+    *   *Check*: Ensures every node has text content.
+    *   *Check*: Validates that every choice points to a valid `next` node (prevents dead ends or broken links).
+2.  **EVM Simulator Edge Cases**
+    *   *Scenario*: User repeatedly clicks the voting button during the animation.
+    *   *Check*: Validates the `isVoting` state lock, ensuring multiple votes cannot be cast simultaneously or interrupt the VVPAT animation.
+3.  **Story Generator Fallback**
+    *   *Scenario*: User somehow reaches the final "Story" screen with an empty choice history (e.g., via direct navigation).
+    *   *Check*: Validates that the generator gracefully handles the empty array and provides a default "Skipped" message rather than crashing.
+
+---
+
 ## 🚀 How to Run Locally
 
 Because the app is purely client-side static files, you can run it instantly:
