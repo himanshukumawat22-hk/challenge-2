@@ -151,7 +151,7 @@ const app = {
         
         node.choices.forEach(choice => {
             const btn = document.createElement('button');
-            btn.className = 'py-3 px-5 rounded-full bg-gray-800 text-white text-sm font-semibold border border-gray-700 hover:bg-brand-orange hover:border-brand-orange transition-all active:scale-95';
+            btn.className = 'py-3 px-5 rounded-full bg-gray-800 text-white text-sm font-semibold border border-gray-700 hover:bg-brand-orange hover:border-brand-orange focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-orange transition-all active:scale-95';
             btn.innerText = choice.label;
             btn.onclick = () => this.handleChoice(choice, nodeId);
             optionsContainer.appendChild(btn);
@@ -199,6 +199,7 @@ const app = {
         
         bubble.className = classes;
         bubble.innerHTML = text;
+        bubble.setAttribute('role', 'log');
         historyContainer.appendChild(bubble);
         this.scrollToBottom();
     },
@@ -252,11 +253,11 @@ const app = {
         // Render Praise
         praise.forEach(p => {
             summaryContainer.innerHTML += `
-                <div class="flex gap-3 items-start">
-                    <div class="text-green-500 text-xl mt-1">✅</div>
+                <div class="flex gap-3 items-start" role="listitem">
+                    <div class="text-green-500 text-xl mt-1" aria-hidden="true">✅</div>
                     <div>
                         <h4 class="font-bold text-white">${p.title}</h4>
-                        <p class="text-sm text-gray-400">${p.desc}</p>
+                        <p class="text-sm text-gray-300">${p.desc}</p>
                     </div>
                 </div>
             `;
@@ -265,11 +266,11 @@ const app = {
         // Render Learnings
         learnings.forEach(l => {
             summaryContainer.innerHTML += `
-                <div class="flex gap-3 items-start">
-                    <div class="text-brand-orange text-xl mt-1">💡</div>
+                <div class="flex gap-3 items-start" role="listitem">
+                    <div class="text-brand-orange text-xl mt-1" aria-hidden="true">💡</div>
                     <div>
                         <h4 class="font-bold text-white">${l.title}</h4>
-                        <p class="text-sm text-gray-400">${l.desc}</p>
+                        <p class="text-sm text-gray-300">${l.desc}</p>
                     </div>
                 </div>
             `;
@@ -277,7 +278,7 @@ const app = {
 
         // Render Default if empty (user skipped everything)
         if (praise.length === 0 && learnings.length === 0) {
-            summaryContainer.innerHTML = `<p class="text-gray-400">You skipped the voting process this time. Remember, your voice matters!</p>`;
+            summaryContainer.innerHTML = `<p class="text-gray-300" role="listitem">You skipped the voting process this time. Remember, your voice matters!</p>`;
         }
 
         // Render Links
@@ -288,8 +289,8 @@ const app = {
 
         links.forEach(link => {
             actionsContainer.innerHTML += `
-                <a href="${link.url}" class="block w-full p-3 bg-gray-800 rounded-xl text-brand-orange text-sm font-semibold hover:bg-gray-700 transition-colors border border-gray-700">
-                    🔗 ${link.label}
+                <a href="${link.url}" class="block w-full p-3 bg-gray-800 rounded-xl text-brand-orange text-sm font-semibold hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-orange transition-colors border border-gray-700">
+                    <span aria-hidden="true">🔗</span> ${link.label}
                 </a>
             `;
         });
