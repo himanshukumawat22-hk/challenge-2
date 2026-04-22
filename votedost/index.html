@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoteDost - Your Election Journey</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN for minimal size) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF9933',
+                            white: '#FFFFFF',
+                            green: '#138808',
+                            dark: '#1A1A1A',
+                            accent: '#3B82F6' // EVM button blue
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-brand-dark text-white min-h-screen overflow-x-hidden selection:bg-brand-orange selection:text-white">
+
+    <!-- Decorative Background Elements -->
+    <div class="fixed top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-brand-orange/20 blur-[100px] -z-10 pointer-events-none mix-blend-screen"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-brand-green/20 blur-[100px] -z-10 pointer-events-none mix-blend-screen"></div>
+
+    <main class="container mx-auto px-4 py-8 max-w-md min-h-screen flex flex-col relative z-10" id="app-container">
+        
+        <!-- View 1: Splash / Onboarding -->
+        <section id="view-splash" class="view-section active flex-1 flex flex-col justify-center items-center text-center">
+            <div class="mb-8 relative animate-float">
+                <!-- Abstract India/Vote Icon SVG -->
+                <svg width="120" height="120" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="90" fill="url(#paint0_linear)" fill-opacity="0.1" stroke="url(#paint1_linear)" stroke-width="4"/>
+                    <path d="M100 50L130 140H70L100 50Z" fill="url(#paint2_linear)"/>
+                    <circle cx="100" cy="110" r="15" fill="#1A1A1A"/>
+                    <circle cx="100" cy="110" r="8" fill="#138808"/>
+                    <defs>
+                        <linearGradient id="paint0_linear" x1="100" y1="10" x2="100" y2="190" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#FF9933"/>
+                            <stop offset="1" stop-color="#138808"/>
+                        </linearGradient>
+                        <linearGradient id="paint1_linear" x1="100" y1="10" x2="100" y2="190" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#FF9933"/>
+                            <stop offset="1" stop-color="#138808"/>
+                        </linearGradient>
+                        <linearGradient id="paint2_linear" x1="100" y1="50" x2="100" y2="140" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#FF9933"/>
+                            <stop offset="1" stop-color="#FFFFFF"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            
+            <h1 class="font-display text-5xl font-bold mb-4 tracking-tight leading-tight">
+                Vote<span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-green">Dost</span>
+            </h1>
+            <p class="text-gray-300 text-lg mb-10 max-w-sm">
+                Don't just read about elections. Live the journey. See what your choices do.
+            </p>
+            
+            <button onclick="app.navigate('simulator')" class="w-full py-4 px-6 rounded-2xl bg-white text-brand-dark font-bold text-lg shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:scale-105 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
+                Start My Simulation
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </section>
+
+        <!-- View 2: The Journey Simulator (Chat Interface) -->
+        <section id="view-simulator" class="view-section flex-1 flex flex-col pt-4 hidden h-full">
+            <div class="flex items-center gap-3 pb-4 border-b border-gray-800 mb-4 sticky top-0 bg-brand-dark/90 backdrop-blur-md z-20">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-orange to-brand-green flex items-center justify-center text-sm shadow-lg shrink-0">
+                    🤖
+                </div>
+                <div>
+                    <h2 class="font-display font-bold text-lg leading-tight">VoteDost Guide</h2>
+                    <p class="text-xs text-gray-400">Interactive Simulation</p>
+                </div>
+                <button onclick="app.navigate('splash')" class="ml-auto text-xs text-gray-500 hover:text-white">Restart</button>
+            </div>
+
+            <!-- Chat History Area -->
+            <div id="chat-history" class="flex-1 overflow-y-auto pb-32 hide-scrollbar flex flex-col gap-2">
+                <!-- Chat bubbles injected here by JS -->
+            </div>
+
+            <!-- Fixed Bottom Options Area -->
+            <div id="chat-options-container" class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-brand-dark via-brand-dark to-transparent pt-12 flex justify-center z-50 transition-all duration-300 transform translate-y-0">
+                <div id="chat-options" class="w-full max-w-md flex flex-wrap gap-2 justify-end">
+                    <!-- Buttons injected here by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- View 3: EVM Simulator -->
+        <section id="view-evm" class="view-section flex-1 flex flex-col pt-8 hidden h-full relative z-50">
+            <div class="text-center mb-8 mt-6">
+                <h2 class="font-display text-3xl font-bold">The Polling Booth</h2>
+                <p class="text-gray-400 mt-2 text-sm max-w-xs mx-auto">This is it. The big moment. Press the blue button next to your choice.</p>
+            </div>
+
+            <!-- EVM Machine SVG Container -->
+            <div class="flex-1 flex items-center justify-center relative w-full pb-8">
+                 <div class="evm-machine bg-[#E0E0E0] rounded-xl p-4 w-full max-w-[320px] shadow-2xl border-4 border-gray-400 relative">
+                    <!-- Top Section -->
+                    <div class="flex justify-between items-center mb-4 border-b-2 border-gray-400 pb-2">
+                        <div class="text-black font-bold text-xs uppercase tracking-wider">Ballot Unit</div>
+                        <div class="flex gap-2">
+                            <div id="ready-light" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Candidates List -->
+                    <div class="bg-white rounded-lg border-2 border-gray-300 p-2 space-y-3">
+                        <div class="flex items-center justify-between border-b border-gray-200 pb-2 evm-row">
+                            <div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-black font-bold">1</div>
+                            <div class="flex-1 px-3 text-black font-bold">Candidate A</div>
+                            <div class="w-8 h-8 border border-gray-400 rounded-full flex items-center justify-center overflow-hidden">
+                                <svg width="20" height="20" viewBox="0 0 24 24"><path fill="black" d="M12 2L2 22h20L12 2z"/></svg>
+                            </div>
+                            <div class="w-4 h-4 rounded-full bg-gray-800 ml-4 border border-gray-600 shadow-inner light-indicator" id="light-1"></div>
+                            <button onclick="evm.vote(1)" class="w-12 h-10 bg-blue-600 rounded-lg ml-3 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 shadow-md transition-all relative overflow-hidden evm-btn"></button>
+                        </div>
+
+                        <div class="flex items-center justify-between border-b border-gray-200 pb-2 evm-row">
+                            <div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-black font-bold">2</div>
+                            <div class="flex-1 px-3 text-black font-bold">Candidate B</div>
+                            <div class="w-8 h-8 border border-gray-400 rounded-full flex items-center justify-center overflow-hidden">
+                                <svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="black"/></svg>
+                            </div>
+                            <div class="w-4 h-4 rounded-full bg-gray-800 ml-4 border border-gray-600 shadow-inner light-indicator" id="light-2"></div>
+                            <button onclick="evm.vote(2)" class="w-12 h-10 bg-blue-600 rounded-lg ml-3 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 shadow-md transition-all relative overflow-hidden evm-btn"></button>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-1 evm-row">
+                            <div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center text-black font-bold">3</div>
+                            <div class="flex-1 px-3 text-black font-bold text-sm">NOTA</div>
+                            <div class="w-8 h-8 border border-gray-400 flex items-center justify-center bg-gray-100">
+                                <span class="text-black text-[10px] font-bold">X</span>
+                            </div>
+                            <div class="w-4 h-4 rounded-full bg-gray-800 ml-4 border border-gray-600 shadow-inner light-indicator" id="light-3"></div>
+                            <button onclick="evm.vote(3)" class="w-12 h-10 bg-blue-600 rounded-lg ml-3 border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 shadow-md transition-all relative overflow-hidden evm-btn"></button>
+                        </div>
+                    </div>
+                 </div>
+
+                 <!-- VVPAT Slip Modal -->
+                 <div id="vvpat-modal" class="absolute inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 rounded-2xl">
+                    <div class="bg-white p-4 rounded text-black text-center w-48 shadow-[0_0_50px_rgba(255,255,255,0.2)] transform translate-y-10 transition-transform duration-500" id="vvpat-slip">
+                        <div class="font-mono text-xs mb-2 border-b border-black pb-1">VVPAT SLIP</div>
+                        <div class="font-bold text-xl mb-1" id="vvpat-name">CANDIDATE</div>
+                        <div class="text-sm font-mono" id="vvpat-symbol">SYMBOL</div>
+                        <div class="mt-4 pt-2 border-t border-dashed border-gray-400 text-[10px] text-gray-500">Vote Recorded Securely</div>
+                    </div>
+                 </div>
+            </div>
+            
+            <div id="finish-story-btn" class="text-center pb-8 mt-auto hidden animate-slide-up">
+                <button onclick="app.finishStory()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-brand-orange to-brand-green text-white font-bold text-lg shadow-[0_10px_40px_rgba(19,136,8,0.3)] hover:scale-[1.02] transition-all">
+                    See Your Election Story 👉
+                </button>
+            </div>
+        </section>
+
+        <!-- View 4: Final Election Story Summary -->
+        <section id="view-story" class="view-section flex-1 flex flex-col pt-8 pb-10 hidden h-full">
+            <h2 class="font-display text-4xl font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-brand-green">Your Story</h2>
+            <p class="text-center text-gray-400 mb-8">A summary of your decisions today.</p>
+
+            <div class="glass-panel p-6 rounded-2xl border border-gray-800 flex-1 overflow-y-auto hide-scrollbar relative">
+                
+                <div class="space-y-6" id="story-summary-content">
+                    <!-- Dynamic summary blocks injected here -->
+                </div>
+
+                <div class="mt-10 pt-6 border-t border-gray-800">
+                    <h3 class="font-bold text-lg mb-3">Quick Actions</h3>
+                    <div class="flex flex-col gap-2" id="story-actions">
+                        <!-- Dynamic actions like "Link to Form 6" injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="app.navigate('splash')" class="mt-6 w-full py-4 px-6 rounded-2xl bg-white/10 text-white font-bold border border-white/20 hover:bg-white/20 transition-all">
+                Play Again
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "votedost",
+  "version": "1.0.0",
+  "description": "VoteDost Election Journey Simulator",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve -p $PORT ."
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
