@@ -36,6 +36,9 @@ const evm = {
             const finishBtn = document.getElementById('finish-story-btn');
             if (finishBtn) {
                 finishBtn.classList.remove('hidden');
+                // Accessibility: Shift focus to the new action button
+                const btnInside = finishBtn.querySelector('button');
+                if (btnInside) btnInside.focus();
             }
         }, 5000);
     },

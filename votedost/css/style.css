@@ -37,7 +37,8 @@
     background: linear-gradient(135deg, #FF9933 0%, #E68A2E 100%);
     border-bottom-right-radius: 4px;
     align-self: flex-end;
-    color: white;
+    color: #1A1A1A;
+    font-weight: 600;
 }
 .chat-consequence {
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(153, 27, 27, 0.2) 100%);

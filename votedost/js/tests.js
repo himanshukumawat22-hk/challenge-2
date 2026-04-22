@@ -18,6 +18,7 @@ const tests = {
 
     runAll() {
         this.testStoryGraphIntegrity();
+        this.testDecisionStepValidation();
         this.testEVMEdgeCases();
         this.testStoryGeneratorEdgeCases();
         
@@ -47,6 +48,35 @@ const tests = {
         }
         
         this.assert(hasStartNode, "Graph contains required 'start' node");
+    },
+
+    testDecisionStepValidation() {
+        console.log("--- Decision Step Validation Tests ---");
+        
+        // 1. First Time Voter Path Validation
+        const ftChoices = storyGraph['first_time_start'].choices;
+        this.assert(ftChoices.some(c => c.next === 'ft_explain_form6'), "First time voter can learn about Form 6");
+        this.assert(ftChoices.some(c => c.next === 'ft_wait_list'), "First time voter who filled form goes to wait list");
+
+        // 2. Lost Card Path Validation
+        const lostCardChoices = storyGraph['lost_card'].choices;
+        this.assert(lostCardChoices.some(c => c.next === 'lost_card_explain'), "Lost card voter receives alternative ID explanation");
+
+        // 3. Skip Vote Consequence Validation
+        const skipNode = storyGraph['skip_vote_consequence'];
+        this.assert(skipNode.type === 'consequence', "Skip vote node is correctly marked with type: 'consequence'");
+        this.assert(skipNode.choices[0].next === 'skip_vote_2', "Skip vote consequence leads to secondary explanation");
+
+        // 4. Convergence Validation (Booth Prep)
+        const boothPrepPaths = ['ft_docs', 'ft_wait_list', 'lost_card_check', 'registered_plan'];
+        boothPrepPaths.forEach(node => {
+            const hasBoothPrep = storyGraph[node].choices.some(c => c.next === 'booth_prep');
+            this.assert(hasBoothPrep, `Node '${node}' converges correctly to 'booth_prep'`);
+        });
+
+        // 5. Final EVM Entry Validation
+        const evmEntryChoices = storyGraph['evm_start'].choices;
+        this.assert(evmEntryChoices.some(c => c.next === 'EVM_SIMULATOR'), "EVM start node correctly routes to EVM_SIMULATOR action");
     },
 
     testEVMEdgeCases() {
