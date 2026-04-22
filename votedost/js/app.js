@@ -394,8 +394,15 @@ async function renderNode(nodeId) {
     const typingId = 'typing-' + Date.now();
     addChatBubble('<span class="animate-pulse">Thinking...</span>', 'ai', false, typingId);
 
-    // Fetch Dynamic Response from API
-    const dynamicText = await api.generateDynamicResponse(node.text, state.history);
+    let dynamicText = node.text; // Default fallback
+
+    try {
+        if (typeof api !== 'undefined' && api.generateDynamicResponse) {
+            dynamicText = await api.generateDynamicResponse(node.text, state.history);
+        }
+    } catch (error) {
+        console.error("Story Engine Error:", error);
+    }
 
     // Update Chat Bubble
     const typingElement = document.getElementById(typingId);
