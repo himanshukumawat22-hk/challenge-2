@@ -84,7 +84,12 @@
                 </ul>
             </div>
             
-            <button onclick="app.navigate('simulator')" aria-label="Start your interactive election simulation" class="w-full py-4 px-6 rounded-2xl bg-white text-brand-dark font-bold text-lg shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:scale-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-brand-orange transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
+            <div class="w-full max-w-sm mx-auto mb-6">
+                <label for="user-name-input" class="block text-left text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Your Name</label>
+                <input type="text" id="user-name-input" placeholder="e.g. Rahul" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-orange transition-colors">
+            </div>
+            
+            <button onclick="app.startSimulation()" aria-label="Start your interactive election simulation" class="w-full py-4 px-6 rounded-2xl bg-white text-brand-dark font-bold text-lg shadow-[0_0_40px_rgba(255,255,255,0.3)] hover:scale-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-brand-orange transition-all duration-300 active:scale-95 flex items-center justify-center gap-2">
                 Start My Simulation
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
@@ -232,7 +237,12 @@
                 </div>
             </div>
 
-            <button onclick="app.navigate('splash')" aria-label="Play Again" class="mt-6 w-full py-4 px-6 rounded-2xl bg-white/10 text-white font-bold border border-white/20 hover:bg-white/20 focus-visible:outline focus-visible:outline-4 focus-visible:outline-brand-orange transition-all">
+            <button onclick="app.saveMyJourney()" id="save-journey-btn" aria-label="Save your journey to the cloud" class="mt-8 w-full py-4 px-6 rounded-2xl bg-brand-green text-white font-bold shadow-[0_10px_30px_rgba(19,136,8,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Save My Journey
+            </button>
+
+            <button onclick="app.navigate('splash')" aria-label="Play Again" class="mt-4 w-full py-4 px-6 rounded-2xl bg-white/10 text-white font-bold border border-white/20 hover:bg-white/20 focus-visible:outline focus-visible:outline-4 focus-visible:outline-brand-orange transition-all">
                 Play Again
             </button>
         </section>
@@ -240,6 +250,9 @@
     </main>
 
     <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/db.js"></script>
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
     <script src="js/ui.js"></script>

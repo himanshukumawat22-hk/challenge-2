@@ -19,7 +19,7 @@ const api = {
         return key;
     },
 
-    async generateDynamicResponse(nodeText, userHistory) {
+    async generateDynamicResponse(nodeText, userHistory, userName = 'Voter', preparedness = 0) {
         const apiKey = this.getApiKey();
         if (!apiKey) {
             console.warn("No API Key provided. Falling back to static text.");
@@ -29,21 +29,25 @@ const api = {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         
         // Structure the prompt with contextual understanding
-        let historyContext = userHistory.map((h, i) => `Step ${i+1}: User chose "${h.choiceLabel}"`).join('\n');
+        let historyContext = userHistory.map((h, i) => `Step ${i+1}: They chose "${h.choiceLabel}" (moving to ${h.nextNode})`).join('\n');
         
         const promptText = `
 You are 'VoteDost', a friendly, engaging guide helping young Indian voters understand elections.
-You speak in a mix of simple English and a little bit of encouraging Hinglish.
-The user is going through an interactive election journey.
+User Name: ${userName}
+Current Preparedness Score: ${preparedness}/100 (High is good, Low means they are making risky choices)
 
-Past User Choices (Context):
-${historyContext || "User just started the journey."}
+Context:
+The user is going through an interactive election journey.
+${historyContext ? "Past Choices:\n" + historyContext : "They just started their journey."}
 
 Standard Expected Response:
 "${nodeText}"
 
 Task:
-Rewrite the "Standard Expected Response" to be highly contextual based on their past choices, dynamic, and engaging.
+Rewrite the "Standard Expected Response" to be highly personalized for ${userName}.
+- Reference their name or past choices if it makes sense (e.g., "Good choice, ${userName}!", or "Arre ${userName}, you just moved right?").
+- Use a mix of English and warm Hinglish (like "Chalo", "Samjhe?", "Bilkul").
+- Be encouraging if they are doing well, or helpful/warning if they are making mistakes (low preparedness).
 - Keep it under 3 sentences.
 - Ensure the core meaning remains exactly the same so the story flows logically.
 - Do not add any choices in your response, just the conversational text.
@@ -73,6 +77,52 @@ Rewrite the "Standard Expected Response" to be highly contextual based on their 
         } catch (error) {
             console.error("Gemini API Error:", error);
             return nodeText; // Fallback
+        }
+    },
+    
+    async generateFinalSummary(userHistory, userName, preparedness) {
+        const apiKey = this.getApiKey();
+        if (!apiKey) return null;
+
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        
+        let historyContext = userHistory.map((h, i) => `Step ${i+1}: Chose "${h.choiceLabel}"`).join('\n');
+        
+        const promptText = `
+You are 'VoteDost', summarizing the user's election journey.
+User Name: ${userName}
+Final Preparedness Score: ${preparedness}/100
+
+User's Journey:
+${historyContext}
+
+Task:
+Write a short (4-5 sentences), warm, and highly personalized summary of their journey.
+- Mention their name.
+- Comment on their choices (were they responsible? did they learn something?).
+- If their preparedness is high, congratulate them on being a 'Super Voter'.
+- If it's low, give them a friendly 'Dost' advice on what to be careful about next time.
+- End with an encouraging note about the power of their vote.
+- Use a mix of English and Hinglish.
+`;
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: promptText }]
+                    }],
+                    generationConfig: { temperature: 0.8, maxOutputTokens: 300 }
+                })
+            });
+
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text.trim();
+        } catch (error) {
+            return null;
         }
     }
 };

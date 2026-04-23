@@ -171,8 +171,10 @@ const storyGraph = {
 const state = {
     currentView: 'splash',
     currentNode: 'start',
+    userName: 'Voter',
     history: [],
-    preparedness: 0
+    preparedness: 0,
+    finalNarrative: ""
 };
 
 // --- AUDIO SYSTEM ---
@@ -254,71 +256,79 @@ function renderOptions(node, nodeId) {
     });
 }
 
-function generateStorySummary() {
+async function generateStorySummary() {
     const summaryContainer = document.getElementById('story-summary-content');
     const actionsContainer = document.getElementById('story-actions');
-    summaryContainer.innerHTML = '';
+    summaryContainer.innerHTML = '<div class="text-center py-4"><span class="animate-pulse text-brand-orange">Generating your personal story...</span></div>';
     actionsContainer.innerHTML = '';
 
     const pathNodes = state.history.map(h => h.node);
     const pathChoices = state.history.map(h => h.nextNode);
 
-    // --- GENERATE HUMAN-FRIENDLY NARRATIVE ---
-    let journeyNarrative = "";
-
-    if (pathNodes.includes('skip_vote_consequence')) {
-         journeyNarrative += "You initially thought about skipping the election, feeling like one vote doesn't matter. But after learning how a single vote impacts your local budget and daily life, you decided to participate. ";
+    // --- TRY AI SUMMARY FIRST ---
+    let journeyNarrative = null;
+    if (typeof api !== 'undefined' && api.generateFinalSummary) {
+        journeyNarrative = await api.generateFinalSummary(state.history, state.userName, state.preparedness);
     }
 
-    if (pathNodes.includes('first_time_start')) {
-        journeyNarrative += "You started your journey as an excited first-time voter. ";
-        if (pathNodes.includes('aadhar_confusion')) {
-            journeyNarrative += "You made a common mistake: thinking an Aadhar card alone gives you the right to vote. You quickly learned that you MUST be on the official Electoral Roll (Form 6). ";
-        }
-        if (pathNodes.includes('no_docs_consequence')) {
-            journeyNarrative += "When preparing your form, you realized you were missing a valid address proof, which would have gotten your application rejected in real life. ";
-        } else if (!pathNodes.includes('skip_vote_consequence')) {
-            journeyNarrative += "You smartly gathered your documents and understood how to use Form 6. ";
-        }
-    } else if (pathNodes.includes('lost_card')) {
-        journeyNarrative += "You panicked because you lost your physical Voter ID card. But you discovered a life-saving secret: as long as your name is on the list, an alternate ID works perfectly! ";
-        if (pathNodes.includes('not_found_consequence')) {
-            journeyNarrative += "However, when you checked the app, your name wasn't there. You learned the hard way that without your name on the list, you simply cannot vote, forcing you to start over with Form 6. ";
-        }
-    } else if (pathNodes.includes('moved_city')) {
-        journeyNarrative += "You recently moved to a new city. ";
-        if (pathNodes.includes('moved_consequence')) {
-            journeyNarrative += "You assumed you could just use your old card in the new city, but learned that you must transfer your constituency using Form 8, otherwise you'd have to travel all the way back home to vote! ";
-        } else {
-            journeyNarrative += "You made the correct choice to update your address via Form 8. ";
-        }
-    } else if (pathNodes.includes('registered_plan')) {
-        journeyNarrative += "You entered as a registered voter. ";
-        if (pathNodes.includes('late_decision_consequence')) {
-            journeyNarrative += "You made a risky choice to just 'figure it out' on Election Day, learning that if your name was accidentally purged from the list, officials wouldn't let you vote. ";
-        } else if (pathNodes.includes('overconfident_consequence')) {
-            journeyNarrative += "You assumed having an EPIC card was a golden ticket, but realized that checking the updated voter list beforehand is mandatory. ";
-        } else {
-            journeyNarrative += "You did the right thing by verifying your name on the electoral list beforehand. ";
-        }
-    }
-
-    if (pathChoices.includes('evm_start') || pathChoices.includes('EVM_SIMULATOR')) {
-        if(typeof evm !== 'undefined' && evm.hasVoted) {
-            journeyNarrative += "Finally, you confidently stepped into the polling booth and successfully cast your vote on the EVM. Great job!";
-        } else {
-            journeyNarrative += "You made it all the way to the booth, but walked out without actually pressing the button!";
-        }
-    }
-
+    // --- FALLBACK TO HUMAN-FRIENDLY NARRATIVE ---
     if (!journeyNarrative) {
-        journeyNarrative = "You skipped the voting process this time, missing a chance to have your voice heard.";
+        journeyNarrative = "";
+        if (pathNodes.includes('skip_vote_consequence')) {
+             journeyNarrative += "You initially thought about skipping the election, feeling like one vote doesn't matter. But after learning how a single vote impacts your local budget and daily life, you decided to participate. ";
+        }
+        // ... (rest of fallback logic)
+        if (pathNodes.includes('first_time_start')) {
+            journeyNarrative += "You started your journey as an excited first-time voter. ";
+            if (pathNodes.includes('aadhar_confusion')) {
+                journeyNarrative += "You made a common mistake: thinking an Aadhar card alone gives you the right to vote. You quickly learned that you MUST be on the official Electoral Roll (Form 6). ";
+            }
+            if (pathNodes.includes('no_docs_consequence')) {
+                journeyNarrative += "When preparing your form, you realized you were missing a valid address proof, which would have gotten your application rejected in real life. ";
+            } else if (!pathNodes.includes('skip_vote_consequence')) {
+                journeyNarrative += "You smartly gathered your documents and understood how to use Form 6. ";
+            }
+        } else if (pathNodes.includes('lost_card')) {
+            journeyNarrative += "You panicked because you lost your physical Voter ID card. But you discovered a life-saving secret: as long as your name is on the list, an alternate ID works perfectly! ";
+            if (pathNodes.includes('not_found_consequence')) {
+                journeyNarrative += "However, when you checked the app, your name wasn't there. You learned the hard way that without your name on the list, you simply cannot vote, forcing you to start over with Form 6. ";
+            }
+        } else if (pathNodes.includes('moved_city')) {
+            journeyNarrative += "You recently moved to a new city. ";
+            if (pathNodes.includes('moved_consequence')) {
+                journeyNarrative += "You assumed you could just use your old card in the new city, but learned that you must transfer your constituency using Form 8, otherwise you'd have to travel all the way back home to vote! ";
+            } else {
+                journeyNarrative += "You made the correct choice to update your address via Form 8. ";
+            }
+        } else if (pathNodes.includes('registered_plan')) {
+            journeyNarrative += "You entered as a registered voter. ";
+            if (pathNodes.includes('late_decision_consequence')) {
+                journeyNarrative += "You made a risky choice to just 'figure it out' on Election Day, learning that if your name was accidentally purged from the list, officials wouldn't let you vote. ";
+            } else if (pathNodes.includes('overconfident_consequence')) {
+                journeyNarrative += "You assumed having an EPIC card was a golden ticket, but realized that checking the updated voter list beforehand is mandatory. ";
+            } else {
+                journeyNarrative += "You did the right thing by verifying your name on the electoral list beforehand. ";
+            }
+        }
+
+        if (pathChoices.includes('evm_start') || pathChoices.includes('EVM_SIMULATOR')) {
+            if(typeof evm !== 'undefined' && evm.hasVoted) {
+                journeyNarrative += "Finally, you confidently stepped into the polling booth and successfully cast your vote on the EVM. Great job!";
+            } else {
+                journeyNarrative += "You made it all the way to the booth, but walked out without actually pressing the button!";
+            }
+        }
+
+        if (!journeyNarrative) {
+            journeyNarrative = "You skipped the voting process this time, missing a chance to have your voice heard.";
+        }
     }
 
     // Inject Narrative
-    summaryContainer.innerHTML += `
+    state.finalNarrative = journeyNarrative;
+    summaryContainer.innerHTML = `
         <div class="mb-6 p-4 bg-brand-orange/10 border border-brand-orange/30 rounded-xl">
-            <h3 class="font-bold text-brand-orange mb-2">Your Journey</h3>
+            <h3 class="font-bold text-brand-orange mb-2">Your Journey, ${state.userName}</h3>
             <p class="text-white text-sm leading-relaxed">${journeyNarrative}</p>
         </div>
         <h3 class="font-bold text-gray-300 text-sm uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">Key Takeaways</h3>
@@ -375,6 +385,14 @@ function generateStorySummary() {
 }
 
 // --- FLOW HANDLING ---
+function startSimulation() {
+    const nameInput = document.getElementById('user-name-input');
+    if (nameInput && nameInput.value.trim()) {
+        state.userName = nameInput.value.trim();
+    }
+    app.navigate('simulator');
+}
+
 function navigate(viewId) {
     showView(viewId);
 
@@ -392,13 +410,13 @@ async function renderNode(nodeId) {
 
     // Show Typing Indicator
     const typingId = 'typing-' + Date.now();
-    addChatBubble('<span class="animate-pulse">Thinking...</span>', 'ai', false, typingId);
+    addChatBubble(`<span class="animate-pulse">VoteDost is thinking for ${state.userName}...</span>`, 'ai', false, typingId);
 
     let dynamicText = node.text; // Default fallback
 
     try {
         if (typeof api !== 'undefined' && api.generateDynamicResponse) {
-            dynamicText = await api.generateDynamicResponse(node.text, state.history);
+            dynamicText = await api.generateDynamicResponse(node.text, state.history, state.userName, state.preparedness);
         }
     } catch (error) {
         console.error("Story Engine Error:", error);
@@ -447,6 +465,33 @@ function handleChoice(choice, fromNodeId) {
     }, 600);
 }
 
+async function saveMyJourney() {
+    const btn = document.getElementById('save-journey-btn');
+    const originalText = btn.innerHTML;
+    
+    // UI feedback
+    btn.disabled = true;
+    btn.innerHTML = 'Saving...';
+
+    const journeyData = {
+        userName: state.userName,
+        preparedness: state.preparedness,
+        history: state.history,
+        narrative: state.finalNarrative,
+        hasVoted: (typeof evm !== 'undefined') ? evm.hasVoted : false,
+        userAgent: navigator.userAgent
+    };
+
+    if (typeof dbService !== 'undefined') {
+        await dbService.saveJourney(journeyData);
+    } else {
+        alert("Save service not available.");
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+}
+
 function finishStory() {
     navigate('story');
     generateStorySummary();
@@ -461,7 +506,9 @@ function init() {
 window.app = {
     state,
     init,
+    startSimulation,
     navigate,
+    saveMyJourney,
     finishStory,
     playBeep,
     generateStorySummary
