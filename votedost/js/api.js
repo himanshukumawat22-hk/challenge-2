@@ -1,22 +1,14 @@
 const api = {
+    // Hardcode your Gemini API Key here for a seamless experience
+    // In production, consider using a proxy to keep the key hidden
+    GEMINI_API_KEY: "YOUR_GEMINI_API_KEY",
+
     getApiKey() {
-        let key = sessionStorage.getItem('GEMINI_API_KEY');
-        if (key === 'DISABLED') return null;
-        
-        if (!key) {
-            key = prompt("Enter Gemini API Key for AI responses (Stored only for this session).\n\nClick 'Cancel' to disable AI and use standard text instead.");
-            if (key === null) {
-                sessionStorage.setItem('GEMINI_API_KEY', 'DISABLED');
-                return null;
-            }
-            key = key.trim();
-            if (key) {
-                sessionStorage.setItem('GEMINI_API_KEY', key);
-            } else {
-                return null;
-            }
+        if (this.GEMINI_API_KEY === "YOUR_GEMINI_API_KEY") {
+            console.warn("Gemini API Key is not configured in js/api.js. Falling back to static text.");
+            return null;
         }
-        return key;
+        return this.GEMINI_API_KEY;
     },
 
     async generateDynamicResponse(nodeText, userHistory, userName = 'Voter', preparedness = 0) {
